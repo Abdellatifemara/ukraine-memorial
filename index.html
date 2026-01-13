@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Українська Пам'ять | Ukraine Memorial</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg-dark: #0d0d12; --bg-card: #16161d; --bg-elevated: #1c1c26; --gold: #c9a227; --gold-light: #e8c547; --gold-dim: #8b7014; --cream: #f5f0e6; --cream-soft: rgba(245, 240, 230, 0.85); --blue-ua: #005bbb; --yellow-ua: #ffd500; --text-muted: #8a8a9a; --border: rgba(255,255,255,0.08); --transition: all 0.3s ease; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg-dark); color: var(--cream); min-height: 100vh; line-height: 1.6; }
+        .ua-border { position: fixed; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--blue-ua) 50%, var(--yellow-ua) 50%); z-index: 1001; }
+        header { background: rgba(13, 13, 18, 0.95); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); position: sticky; top: 4px; z-index: 1000; padding: 0 24px; }
+        .header-content { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 72px; flex-wrap: wrap; gap: 10px; }
+        .logo { display: flex; align-items: center; gap: 8px; text-decoration: none; color: var(--cream); }
+        .logo-text { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; font-weight: 600; }
+        .logo-text span { color: var(--gold); }
+        nav { display: flex; gap: 6px; align-items: center; }
+        .nav-link { padding: 8px 16px; color: var(--cream-soft); text-decoration: none; font-size: 0.9rem; border-radius: 8px; transition: var(--transition); }
+        .nav-link:hover, .nav-link.active { background: var(--bg-elevated); color: var(--gold); }
+        .lang-btn { padding: 6px 12px; background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 6px; color: var(--cream); font-size: 0.8rem; cursor: pointer; transition: var(--transition); }
+        .lang-btn:hover { border-color: var(--gold-dim); }
+        main { max-width: 1400px; margin: 0 auto; padding: 40px 24px; }
+        .page { display: none; }
+        .page.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .hero-section { text-align: center; padding: 50px 0 60px; }
+        .hero-title { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 700; margin-bottom: 16px; background: linear-gradient(135deg, var(--cream) 0%, var(--gold) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .hero-subtitle { font-size: 1.1rem; color: var(--text-muted); max-width: 550px; margin: 0 auto; }
+        .search-box { max-width: 500px; margin: 40px auto 0; position: relative; }
+        .search-box input { width: 100%; padding: 14px 20px 14px 50px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; color: var(--cream); font-size: 1rem; transition: var(--transition); }
+        .search-box input:focus { outline: none; border-color: var(--gold-dim); }
+        .search-box input::placeholder { color: var(--text-muted); }
+        .search-box svg { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--text-muted); }
+        .section-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; margin-bottom: 28px; }
+        .memorial-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+        .memorial-card { background: var(--bg-card); border-radius: 16px; overflow: hidden; border: 1px solid var(--border); cursor: pointer; transition: var(--transition); }
+        .memorial-card:hover { transform: translateY(-4px); border-color: var(--gold-dim); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+
+        /* Fixed image container */
+        .card-image-container { position: relative; width: 100%; padding-top: 120%; overflow: hidden; background: var(--bg-elevated); }
+        .card-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 15%; }
+
+        .card-content { padding: 20px; }
+        .card-name { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; margin-bottom: 4px; }
+        .card-callsign { color: var(--gold); font-size: 0.85rem; margin-bottom: 6px; }
+        .card-dates { color: var(--text-muted); font-size: 0.8rem; }
+        .no-results { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+        .no-results h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin-bottom: 8px; color: var(--cream); }
+
+        /* About Page */
+        .about-container { max-width: 800px; margin: 0 auto; }
+        .about-hero { text-align: center; padding: 40px 0 50px; border-bottom: 1px solid var(--border); margin-bottom: 50px; }
+        .about-title { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; margin-bottom: 20px; }
+        .about-intro { font-size: 1.1rem; color: var(--cream-soft); line-height: 1.8; }
+        .about-section { margin-bottom: 50px; }
+        .about-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.6rem; color: var(--gold); margin-bottom: 16px; }
+        .about-section p { color: var(--cream-soft); line-height: 1.8; margin-bottom: 12px; }
+        .contact-box { background: var(--bg-card); border-radius: 16px; padding: 36px; border: 1px solid var(--border); }
+        .contact-box h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 20px; text-align: center; }
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; margin-bottom: 6px; color: var(--cream-soft); font-size: 0.85rem; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px 14px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; color: var(--cream); font-family: inherit; font-size: 0.95rem; }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--gold-dim); }
+        .form-group textarea { min-height: 100px; resize: vertical; }
+        .submit-btn { width: 100%; padding: 14px; background: var(--gold-dim); border: none; border-radius: 8px; color: var(--cream); font-size: 1rem; cursor: pointer; transition: var(--transition); }
+        .submit-btn:hover { background: var(--gold); }
+        .email-backup { text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 0.9rem; }
+        .email-backup a { color: var(--gold); text-decoration: none; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--bg-card); border-radius: 16px; max-width: 650px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; border: 1px solid var(--border); }
+        .modal-close { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; background: rgba(0,0,0,0.6); border: none; border-radius: 50%; color: white; cursor: pointer; font-size: 22px; z-index: 10; transition: var(--transition); }
+        .modal-close:hover { background: rgba(0,0,0,0.8); }
+
+        /* Modal fixed image */
+        .modal-image-container { position: relative; width: 100%; padding-top: 70%; overflow: hidden; background: var(--bg-elevated); }
+        .modal-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 15%; }
+
+        .modal-body { padding: 28px; }
+        .modal-name { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; margin-bottom: 6px; }
+        .modal-callsign { color: var(--gold); font-size: 1rem; margin-bottom: 10px; }
+        .modal-dates { color: var(--text-muted); margin-bottom: 16px; font-size: 0.9rem; }
+        .modal-story { line-height: 1.8; color: var(--cream-soft); margin-bottom: 28px; }
+
+        /* Message Section */
+        .message-section { background: var(--bg-elevated); border-radius: 12px; padding: 24px; }
+        .message-section h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .message-section h4 svg { color: var(--gold); }
+        .message-note { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px; }
+        .message-input { width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 8px; color: var(--cream); font-family: inherit; font-size: 0.9rem; min-height: 80px; resize: vertical; margin-bottom: 12px; }
+        .message-input:focus { outline: none; border-color: var(--gold-dim); }
+        .message-btn { padding: 10px 20px; background: var(--gold-dim); border: none; border-radius: 8px; color: var(--cream); font-size: 0.9rem; cursor: pointer; transition: var(--transition); }
+        .message-btn:hover { background: var(--gold); }
+
+        /* Candle Animation Overlay */
+        .candle-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .candle-overlay.active { display: flex; }
+        .candle-container { position: relative; width: 100px; height: 180px; }
+        .candle-body { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 36px; height: 100px; background: linear-gradient(to bottom, #f5f0e6, #e0d5c5); border-radius: 4px 4px 8px 8px; }
+        .candle-wick { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); width: 2px; height: 12px; background: #333; }
+        .candle-flame { position: absolute; bottom: 110px; left: 50%; transform: translateX(-50%); width: 16px; height: 40px; background: radial-gradient(ellipse at bottom, #ffd500 0%, var(--gold) 50%, transparent 70%); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; animation: flicker 0.4s ease-in-out infinite alternate; }
+        @keyframes flicker { 0% { transform: translateX(-50%) scale(1) rotate(-1deg); } 100% { transform: translateX(-50%) scale(1.05) rotate(1deg); } }
+        .candle-glow { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); width: 80px; height: 80px; background: radial-gradient(circle, rgba(255,213,0,0.15) 0%, transparent 70%); }
+        .floating-message { position: absolute; bottom: 200px; left: 50%; transform: translateX(-50%); color: var(--cream-soft); font-size: 0.9rem; max-width: 250px; text-align: center; opacity: 0; animation: floatUp 4s ease-out forwards; }
+        @keyframes floatUp { 0% { opacity: 0; transform: translateX(-50%) translateY(0); } 10% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-150px); } }
+        .candle-text { margin-top: 40px; font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--cream); text-align: center; opacity: 0; animation: fadeInText 1s ease 0.5s forwards; }
+        @keyframes fadeInText { to { opacity: 1; } }
+        .candle-subtext { margin-top: 12px; color: var(--text-muted); font-size: 0.95rem; opacity: 0; animation: fadeInText 1s ease 1s forwards; }
+
+        /* Footer */
+        footer { background: var(--bg-card); border-top: 1px solid var(--border); padding: 50px 24px 30px; margin-top: 80px; }
+        .footer-content { max-width: 1200px; margin: 0 auto; }
+        .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 50px; margin-bottom: 40px; }
+        .footer-about h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 14px; color: var(--cream); }
+        .footer-about p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; }
+        .footer-links h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gold); margin-bottom: 16px; }
+        .footer-links ul { list-style: none; }
+        .footer-links li { margin-bottom: 10px; }
+        .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: var(--transition); }
+        .footer-links a:hover { color: var(--cream); }
+        .footer-bottom { padding-top: 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+        .footer-copy { color: var(--text-muted); font-size: 0.85rem; }
+        .footer-copy a { color: var(--gold); text-decoration: none; }
+        .footer-made { color: var(--text-muted); font-size: 0.85rem; display: flex; align-items: center; gap: 6px; }
+
+        @media (max-width: 768px) {
+            .header-content { height: auto; padding: 14px 0; }
+            .hero-title { font-size: 2.2rem; }
+            .memorial-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+            nav { width: 100%; justify-content: center; flex-wrap: wrap; }
+            .footer-grid { grid-template-columns: 1fr; gap: 30px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ua-border"></div>
+
+    <header>
+        <div class="header-content">
+            <a href="#" class="logo" onclick="showPage('home'); return false;">
+                <span class="logo-text" data-uk="Українська" data-en="Ukraine">Українська</span>
+                <span class="logo-text"><span data-uk="Пам'ять" data-en="Memorial">Пам'ять</span></span>
+            </a>
+            <nav>
+                <a href="#" class="nav-link active" data-page="home" onclick="showPage('home'); return false;">
+                    <span data-uk="Головна" data-en="Home">Головна</span>
+                </a>
+                <a href="#" class="nav-link" data-page="about" onclick="showPage('about'); return false;">
+                    <span data-uk="Про нас" data-en="About">Про нас</span>
+                </a>
+                <button class="lang-btn" onclick="toggleLang()">EN / UA</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Home Page -->
+        <div id="page-home" class="page active">
+            <section class="hero-section">
+                <h1 class="hero-title" data-uk="Вічна Пам'ять" data-en="Eternal Memory">Вічна Пам'ять</h1>
+                <p class="hero-subtitle" data-uk="Місце пам'яті про українців, які залишили цей світ. Вшановуємо їхнє життя та зберігаємо спогади для майбутніх поколінь." data-en="A place to remember Ukrainians who have left this world. We honor their lives and preserve memories for future generations.">Місце пам'яті про українців, які залишили цей світ. Вшановуємо їхнє життя та зберігаємо спогади для майбутніх поколінь.</p>
+                <div class="search-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input type="text" id="searchInput" data-uk-placeholder="Пошук за ім'ям..." data-en-placeholder="Search by name..." placeholder="Пошук за ім'ям..." oninput="filterPeople()">
+                </div>
+            </section>
+            <section>
+                <h2 class="section-title" data-uk="Пам'ятаємо" data-en="We Remember">Пам'ятаємо</h2>
+                <div class="memorial-grid" id="memorialGrid"></div>
+                <div class="no-results" id="noResults" style="display:none;">
+                    <h3 data-uk="Нікого не знайдено" data-en="No one found">Нікого не знайдено</h3>
+                    <p data-uk="Спробуйте інший запит" data-en="Try a different search">Спробуйте інший запит</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- About Page -->
+        <div id="page-about" class="page">
+            <div class="about-container">
+                <div class="about-hero">
+                    <h1 class="about-title" data-uk="Про Меморіал" data-en="About the Memorial">Про Меморіал</h1>
+                    <p class="about-intro" data-uk="Цей сайт створено для вшанування пам'яті українців, які пішли з життя. Тут можна поділитися історіями про рідних, друзів та близьких людей." data-en="This website was created to honor the memory of Ukrainians who have passed away. Here you can share stories about family, friends and loved ones.">Цей сайт створено для вшанування пам'яті українців, які пішли з життя. Тут можна поділитися історіями про рідних, друзів та близьких людей.</p>
+                </div>
+
+                <div class="about-section">
+                    <h2 data-uk="Наша Місія" data-en="Our Mission">Наша Місія</h2>
+                    <p data-uk="Ми віримо, що кожна людина заслуговує на те, щоб її пам'ятали. Цей меморіал — місце, де можна зберегти спогади про тих, кого ми втратили, та поділитися їхніми історіями зі світом." data-en="We believe that every person deserves to be remembered. This memorial is a place where you can preserve memories of those we have lost and share their stories with the world.">Ми віримо, що кожна людина заслуговує на те, щоб її пам'ятали. Цей меморіал — місце, де можна зберегти спогади про тих, кого ми втратили, та поділитися їхніми історіями зі світом.</p>
+                </div>
+
+                <div class="about-section">
+                    <h2 data-uk="Як це працює" data-en="How it works">Як це працює</h2>
+                    <p data-uk="Ви можете залишити особисте повідомлення на сторінці кожної людини. Ці повідомлення символічні — вони піднімаються до зірок як свічка пам'яті." data-en="You can leave a personal message on each person's page. These messages are symbolic — they rise to the stars like a memorial candle.">Ви можете залишити особисте повідомлення на сторінці кожної людини. Ці повідомлення символічні — вони піднімаються до зірок як свічка пам'яті.</p>
+                    <p data-uk="Якщо ви хочете додати когось до меморіалу, зв'яжіться з нами через форму нижче." data-en="If you want to add someone to the memorial, contact us through the form below.">Якщо ви хочете додати когось до меморіалу, зв'яжіться з нами через форму нижче.</p>
+                </div>
+
+                <div class="contact-box">
+                    <h3 data-uk="Зв'язатися з нами" data-en="Contact Us">Зв'язатися з нами</h3>
+                    <form id="contactForm" onsubmit="submitForm(event)">
+                        <div class="form-group">
+                            <label data-uk="Ваше ім'я" data-en="Your name">Ваше ім'я</label>
+                            <input type="text" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label data-uk="Посилання на фото (необов'язково)" data-en="Picture link (optional)">Посилання на фото (необов'язково)</label>
+                            <input type="url" name="picture" placeholder="https://...">
+                        </div>
+                        <div class="form-group">
+                            <label data-uk="Повідомлення" data-en="Message">Повідомлення</label>
+                            <textarea name="message" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn" data-uk="Надіслати" data-en="Send">Надіслати</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+            <div class="modal-image-container">
+                <img class="modal-image" id="modalImg" src="" alt="">
+            </div>
+            <div class="modal-body">
+                <h2 class="modal-name" id="modalName"></h2>
+                <p class="modal-callsign" id="modalCallsign"></p>
+                <p class="modal-dates" id="modalDates"></p>
+                <p class="modal-story" id="modalStory"></p>
+
+                <div class="message-section">
+                    <h4>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        <span data-uk="Залишити слова пам'яті" data-en="Leave words of remembrance">Залишити слова пам'яті</span>
+                    </h4>
+                    <p class="message-note" data-uk="Ваше повідомлення підніметься до зірок як свічка пам'яті" data-en="Your message will rise to the stars like a memorial candle">Ваше повідомлення підніметься до зірок як свічка пам'яті</p>
+                    <textarea class="message-input" id="messageInput" data-uk-placeholder="Напишіть своє повідомлення..." data-en-placeholder="Write your message..." placeholder="Напишіть своє повідомлення..."></textarea>
+                    <button class="message-btn" onclick="sendMemoryMessage()" data-uk="Запалити свічку" data-en="Light a candle">Запалити свічку</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Candle Animation -->
+    <div class="candle-overlay" id="candleOverlay" onclick="closeCandleOverlay()">
+        <div class="candle-container">
+            <div class="candle-glow"></div>
+            <div class="candle-body"></div>
+            <div class="candle-wick"></div>
+            <div class="candle-flame"></div>
+            <div class="floating-message" id="floatingMessage"></div>
+        </div>
+        <p class="candle-text" data-uk="Ваші слова піднялися до зірок..." data-en="Your words have risen to the stars...">Ваші слова піднялися до зірок...</p>
+        <p class="candle-subtext" data-uk="Вічна пам'ять" data-en="Eternal memory">Вічна пам'ять</p>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <h3 data-uk="Українська Пам'ять" data-en="Ukraine Memorial">Українська Пам'ять</h3>
+                    <p data-uk="Онлайн-меморіал для вшанування пам'яті українців, які пішли з життя. Зберігаємо історії та спогади для майбутніх поколінь. Вічна пам'ять." data-en="An online memorial to honor Ukrainians who have passed away. We preserve stories and memories for future generations. Eternal memory.">Онлайн-меморіал для вшанування пам'яті українців, які пішли з життя. Зберігаємо історії та спогади для майбутніх поколінь. Вічна пам'ять.</p>
+                </div>
+                <div class="footer-links">
+                    <h4 data-uk="Навігація" data-en="Navigation">Навігація</h4>
+                    <ul>
+                        <li><a href="#" onclick="showPage('home'); return false;" data-uk="Головна" data-en="Home">Головна</a></li>
+                        <li><a href="#" onclick="showPage('about'); return false;" data-uk="Про нас" data-en="About">Про нас</a></li>
+                    </ul>
+                </div>
+                <div class="footer-links">
+                    <h4 data-uk="Ресурси" data-en="Resources">Ресурси</h4>
+                    <ul>
+                        <li><a href="https://memorybook.org.ua" target="_blank" rel="noopener" data-uk="Книга пам'яті України" data-en="Book of Memory Ukraine">Книга пам'яті України</a></li>
+                        <li><a href="https://war.ukraine.ua" target="_blank" rel="noopener" data-uk="war.ukraine.ua" data-en="war.ukraine.ua">war.ukraine.ua</a></li>
+                        <li><a href="https://bank.gov.ua/en/about/support-the-armed-forces" target="_blank" rel="noopener" data-uk="Підтримати ЗСУ" data-en="Support Armed Forces">Підтримати ЗСУ</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p class="footer-copy">© 2024 <a href="#" onclick="showPage('home'); return false;" data-uk="Українська Пам'ять" data-en="Ukraine Memorial">Українська Пам'ять</a></p>
+                <p class="footer-made">
+                    <span data-uk="Зроблено з" data-en="Made with">Зроблено з</span>
+                    <span>💛💙</span>
+                    <span data-uk="в Україні" data-en="in Ukraine">в Україні</span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let lang = 'uk';
+
+        const people = [
+            { id: 1, name: "Дмитро Коцюбайло", nameEn: "Dmytro Kotsiubailo", callsign: "Да Вінчі", callsignEn: "Da Vinci", dates: "1995 — 2023", image: "kotsiubailo.jpg", story: "Герой України, наймолодший командир батальйону в історії ЗСУ. Почав захищати Україну у 18 років під час Революції Гідності. Командував батальйоном «Вовки Да Вінчі». Загинув у бою під Бахмутом.", storyEn: "Hero of Ukraine, the youngest battalion commander in the history of the Armed Forces. Started defending Ukraine at 18 during the Revolution of Dignity. Commanded the 'Da Vinci Wolves' battalion. Died in battle near Bakhmut." },
+            { id: 2, name: "Вікторія Амеліна", nameEn: "Victoria Amelina", callsign: "", callsignEn: "", dates: "1986 — 2023", image: "amelina.jpg", story: "Українська письменниця, поетеса та дослідниця воєнних злочинів. Документувала злочини разом з організацією Truth Hounds. Загинула внаслідок ракетного удару по ресторану у Краматорську.", storyEn: "Ukrainian writer, poet and war crimes researcher. Documented crimes with Truth Hounds organization. Died in a missile strike on a restaurant in Kramatorsk." },
+            { id: 3, name: "Олександр Оксанченко", nameEn: "Oleksandr Oksanchenko", callsign: "Сірий Вовк", callsignEn: "Grey Wolf", dates: "1968 — 2022", image: "oksanchenko.jpg", story: "Полковник Повітряних Сил України, легендарний пілот Су-27. Один з найкращих пілотажних пілотів світу. Повернувся зі пенсії щоб захистити небо над Києвом у перші дні вторгнення.", storyEn: "Colonel of the Ukrainian Air Force, legendary Su-27 pilot. One of the world's best aerobatic pilots. Returned from retirement to defend the skies over Kyiv in the first days of the invasion." },
+            { id: 4, name: "Андрій Пільщиков", nameEn: "Andrii Pilshchykov", callsign: "Juice", callsignEn: "Juice", dates: "1993 — 2023", image: "pilshchykov.jpg", story: "Майор Повітряних Сил України, пілот МіГ-29. Провів понад 100 бойових вильотів. Став обличчям кампанії за постачання F-16 для України, виступав у Конгресі США.", storyEn: "Major of the Ukrainian Air Force, MiG-29 pilot. Flew over 100 combat missions. Became the face of the campaign for F-16 delivery to Ukraine, spoke at the US Congress." },
+            { id: 5, name: "Ірина Цибух", nameEn: "Iryna Tsybukh", callsign: "Чека", callsignEn: "Cheka", dates: "1998 — 2024", image: "tsybukh.jpg", story: "Журналістка та парамедик добровольчого батальйону «Госпітальєри». З 2015 року рятувала поранених на Донбасі. Загинула під час евакуації за три дні до свого 26-річчя.", storyEn: "Journalist and paramedic of the volunteer battalion 'Hospitallers'. Since 2015, she saved wounded in Donbas. Died during evacuation three days before her 26th birthday." }
+        ];
+
+        function render(filtered = people) {
+            const grid = document.getElementById('memorialGrid');
+            const noResults = document.getElementById('noResults');
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+            grid.innerHTML = filtered.map(p => `
+                <div class="memorial-card" onclick="openModal(${p.id})">
+                    <div class="card-image-container">
+                        <img class="card-image" src="${p.image}" alt="${lang === 'uk' ? p.name : p.nameEn}">
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-name">${lang === 'uk' ? p.name : p.nameEn}</h3>
+                        ${(lang === 'uk' ? p.callsign : p.callsignEn) ? `<p class="card-callsign">«${lang === 'uk' ? p.callsign : p.callsignEn}»</p>` : ''}
+                        <p class="card-dates">${p.dates}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterPeople() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (!query) { render(); return; }
+            const filtered = people.filter(p =>
+                p.name.toLowerCase().includes(query) ||
+                p.nameEn.toLowerCase().includes(query) ||
+                (p.callsign && p.callsign.toLowerCase().includes(query)) ||
+                (p.callsignEn && p.callsignEn.toLowerCase().includes(query))
+            );
+            render(filtered);
+        }
+
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.toggle('active', l.dataset.page === page));
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function openModal(id) {
+            const p = people.find(x => x.id === id);
+            document.getElementById('modalImg').src = p.image;
+            document.getElementById('modalName').textContent = lang === 'uk' ? p.name : p.nameEn;
+            const callsign = lang === 'uk' ? p.callsign : p.callsignEn;
+            document.getElementById('modalCallsign').textContent = callsign ? `«${callsign}»` : '';
+            document.getElementById('modalDates').textContent = p.dates;
+            document.getElementById('modalStory').textContent = lang === 'uk' ? p.story : p.storyEn;
+            document.getElementById('modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            document.body.style.overflow = '';
+            document.getElementById('messageInput').value = '';
+        }
+
+        function sendMemoryMessage() {
+            const input = document.getElementById('messageInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            document.getElementById('floatingMessage').textContent = msg;
+            input.value = '';
+            closeModal();
+
+            const overlay = document.getElementById('candleOverlay');
+            overlay.classList.add('active');
+
+            const floatingMsg = document.getElementById('floatingMessage');
+            floatingMsg.style.animation = 'none';
+            floatingMsg.offsetHeight;
+            floatingMsg.style.animation = 'floatUp 4s ease-out forwards';
+
+            setTimeout(() => {
+                overlay.classList.remove('active');
+            }, 5000);
+        }
+
+        function closeCandleOverlay() {
+            document.getElementById('candleOverlay').classList.remove('active');
+        }
+
+        function toggleLang() {
+            lang = lang === 'uk' ? 'en' : 'uk';
+            document.querySelectorAll('[data-uk]').forEach(el => {
+                el.textContent = lang === 'uk' ? el.dataset.uk : el.dataset.en;
+            });
+            document.querySelectorAll('[data-uk-placeholder]').forEach(el => {
+                el.placeholder = lang === 'uk' ? el.dataset.ukPlaceholder : el.dataset.enPlaceholder;
+            });
+            render();
+        }
+
+        function submitForm(e) {
+            e.preventDefault();
+            const f = new FormData(e.target);
+            const subject = encodeURIComponent(lang === 'uk' ? 'Повідомлення з меморіалу' : 'Memorial Contact');
+            const picture = f.get('picture') ? `\nPicture: ${f.get('picture')}` : '';
+            const body = encodeURIComponent(`Name: ${f.get('name')}\nEmail: ${f.get('email')}${picture}\n\n${f.get('message')}`);
+            window.location.href = `mailto:abdellatif505050@gmail.com?subject=${subject}&body=${body}`;
+        }
+
+        document.addEventListener('keydown', e => { if(e.key === 'Escape') { closeModal(); closeCandleOverlay(); } });
+        render();
+    </script>
+</body>
+</html>
